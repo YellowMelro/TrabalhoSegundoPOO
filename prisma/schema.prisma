@@ -1,0 +1,92 @@
+// arquivo: prisma/schema.prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// modelagem
+model Aluno {
+  idAluno              String       @id @default(uuid())
+  matricula       Int      
+  nome            String
+  grupoId        String @unique
+  grupo           Grupo @relation(fields: [grupoId], references: [idGrupo])
+  projetoInova AlunoOnProjetoInova[]
+
+
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+  
+}
+
+model Grupo {
+  idGrupo              String       @id @default(uuid())
+  nome            String
+  matriculaLider  Int
+  aluno           Aluno[]
+  projetoInova ProjetoInova @relation(fields: [projetoInovaId], references: [idProjeto])
+  projetoInovaId String @unique
+  
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+  
+}
+
+model Professor {
+  idProfessor           String       @id @default(uuid())
+  matricula    Int 
+  projetoInova ProfessorOnProjetoInova[]
+  
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+}
+model ProjetoInova {
+  idProjeto              String       @id @default(uuid())
+  nota            Float
+  estante         Int          @unique
+  grupoId         String
+  grupo           Grupo?
+  professores ProfessorOnProjetoInova[]
+  alunos AlunoOnProjetoInova[]
+  
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+} 
+ // modelagem de muitos para muitos
+model ProfessorOnProjetoInova {
+  professorId String 
+  projetoInovaId String
+  professor Professor @relation(fields: [professorId], references: [idProfessor])
+  projetoInova ProjetoInova @relation(fields: [projetoInovaId], references: [idProjeto])
+
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+  //--
+  @@id([professorId, projetoInovaId])
+}
+
+model AlunoOnProjetoInova {
+  alunoId String 
+  projetoInovaId String
+  aluno Aluno @relation(fields: [alunoId], references: [idAluno])
+  projetoInova ProjetoInova @relation(fields: [projetoInovaId], references: [idProjeto])
+
+  //--
+  createdAt DateTime @default(now())
+  updateAt DateTime @default(now())
+  //--
+  @@id([alunoId, projetoInovaId])
+}
